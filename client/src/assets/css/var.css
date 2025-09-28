@@ -1,0 +1,19 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+:root {
+   --fontPrim: "Bebas Neue", sans-serif;
+   --fontSec: "Poppins", sans-serif;
+   --colorBackground: #F6F6F6;
+   --colorBlue: #4162A6;
+   --colorBlueContrast: #33559C;
+   --colorGreen: #4EBF4B;
+   --colorOrange: #F2921D;
+   --colorPrim: #4162A6;
+   --colorPrimBright: #C2D4FA;
+   --colorRed: #F22738;
+   --colorYellow: #F2B90C;
+
+   /* Barra de navegação */
+   --fixWidthNav: 240px;
+}

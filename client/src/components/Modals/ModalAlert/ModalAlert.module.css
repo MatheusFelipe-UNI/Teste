@@ -1,0 +1,156 @@
+/* 
+===================================================================
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            Estilização de Fundo e Container da Modal
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+===================================================================
+*/
+.modalMessage__cover {
+    position: fixed;
+    top: 0; right: 0; bottom: 0; left: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #4b4b4b34;
+    backdrop-filter: blur(2px);
+    z-index: 99999;
+}
+
+.modalMessageContainer {
+    position: relative;
+    width: 500px;
+    background-color: white;
+    padding: 15px 20px;
+    border-radius: var(--borderRadiusFix);
+
+}
+
+/* 
+===================================================================
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                Estilização de Header da Modal
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+===================================================================
+*/
+
+/* 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                 HeaderContainer
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
+.modalMessageContent__header {
+    position: absolute;
+    top: -57px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 6em;
+}
+
+/* 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                Icones de status
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
+
+.modalMessageContent__header svg {
+    color: white;
+    padding: 20px;
+    border-radius: 50%;
+}
+
+.modalSuccess .modalMessageContent__header svg{
+    background-color: var(--colorGreen);
+}
+
+.modalAlert .modalMessageContent__header svg{
+    background-color: var(--colorYellow);
+}
+
+.modalImportant .modalMessageContent__header svg{
+    background-color: var(--colorRed);
+}
+
+
+
+/* 
+===================================================================
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                Estilização Conteúdo Principal
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+===================================================================
+*/
+
+.modalMessageContent__info {
+    margin-top: 2em; 
+    font-family: var(--fontPrim);
+}
+
+/* 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                Textos em geral
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
+
+.modalMessageContent__info .info__title {
+    text-align: center;
+    
+}
+
+.modalMessageContent__info .info__text {
+    margin: 1.25em 0;
+    text-align: center;
+    font-family: var(--fontSec);
+}
+
+.modalMessageContent__info hr {
+    margin: 15px -20px;
+    border: 1px solid rgba(204, 204, 204, 0.233);
+}
+
+/* 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                Botões de ação
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
+
+.modalMessageContent__info .info__btnCollection {
+    display: flex;
+    justify-content: end;
+    gap: 15px;
+}
+
+.info__btnCollection button { 
+    font-size: 18px;
+    padding: 10px 20px;
+}
+
+.btnCollection__btnConfirm {
+    background-color: var(--colorSec);
+    
+}
+
+.btnCollection__btnCancel {
+    background-color: white;
+    color: var(--colorSec);
+    border: 1px solid var(--colorSec);
+
+}
+
+.btnCollection__btnCancel:hover {
+    background-color: var(--colorInactive);
+    color: white;
+    border-color: transparent;
+
+}
+
+
+
+@media only screen and (max-width: 575px) {
+    .modalMessageContainer {
+        width: 350px;
+    }
+
+    .modalMessageContent__info .info__title {
+        font-size: 25px;
+    }
+}
