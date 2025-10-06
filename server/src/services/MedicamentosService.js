@@ -5,11 +5,13 @@ const { getAllMedicamentos,
    getAllMedicamentosForSelect,
    getAllMedicamentosByFilter,
    createMedicamento,
-    getMedicamentoByName,
+    updateMedicamento,
+    changeSituacaoMedicamento,
 } = require("../repositories/MedicamentosRepository.js");
 const { Op } = require("sequelize");
 const { Medicamentos, Laboratorios, sequelize } = require("../models/index.js");
 const ExistsDataError = require("../classes/ExistsDataError.js");
+const NotFoundError = require("../classes/NotFoundError.js");
 
 
 async function getAllMedicamentosService() {
@@ -63,8 +65,11 @@ async function getAllMedicamentosByFilterService(QueryParams = {}) {
    const Orderselect = [];
    if (orderBy) {
       const [field, direction] = orderBy.split(",")
-      if (field && (direction == "ASC" || direction === "DESC")) {
-         Orderselect.push([field, direction]);
+      if (field && direction) {
+         const upperDirection = direction.toUpperCase();
+         if(upperDirection === "ASC" || upperDirection == "DESC") {
+            Orderselect.push([field, upperDirection]);
+         }
       }
    } else {
       Orderselect.push(["nome", "ASC"]);
@@ -95,7 +100,6 @@ async function getAllMedicamentosByFilterService(QueryParams = {}) {
          as: "laboratorio",
          attributes: ["nome_laboratorio"],
       },
-      order: [],
    };
 
    const allMedicamentos = await getAllMedicamentosByFilter(queryOptions);
@@ -103,7 +107,7 @@ async function getAllMedicamentosByFilterService(QueryParams = {}) {
 }
 
 async function createMedicamentoService(medicamentoData) {
-   const { id, nome } = medicamentoData
+   const { id } = medicamentoData
 
    const idExists = await getMedicamentoById(id);
    if(idExists) {
@@ -114,6 +118,39 @@ async function createMedicamentoService(medicamentoData) {
    return Newmedicamento;
 }
 
+async function updateMedicamentoService(id, medicamentoData) {
+   const medicamento = await getMedicamentoById(id);
+   if(!medicamento) {
+      throw new NotFoundError("O medicamento não existe")
+   }
+   const updatedMedicamento = await updateMedicamento(id, medicamentoData);
+   return updatedMedicamento;
+}
+
+async function changeSituacaoMedicamentoService(id, newStatus) {
+   const medicamento = await getMedicamentoById(id);
+   if(!medicamento) {
+      throw new NotFoundError("O medicamento não existe")
+   }
+
+       const formattedStatus = newStatus.trim().toUpperCase();
+    if (formattedStatus !== 'ATIVO' && formattedStatus !== 'INATIVO') {
+        throw new ExistsDataError("Status inválido.", "STATUS_INVALIDO", {
+            status_enviado: newStatus,
+            status_permitidos: ["ATIVO", "INATIVO"],
+        });
+    }
+    
+    const situacaoAtual = (medicamento.situacao || 'ATIVO').trim().toUpperCase();
+
+
+    if (situacaoAtual === formattedStatus) {
+        throw new ExistsDataError(`O medicamento já está ${formattedStatus}.`);
+    }
+    const newMedStatus = await changeSituacaoMedicamento(id, formattedStatus);
+    return newMedStatus
+} 
+
 module.exports = {
    getAllMedicamentosService,
    getAllMedicamentosByLaboratorioIdService,
@@ -122,4 +159,6 @@ module.exports = {
    getAllMedicamentosForSelectService,
    getAllMedicamentosByFilterService,
    createMedicamentoService,
+   updateMedicamentoService,
+   changeSituacaoMedicamentoService,
 };

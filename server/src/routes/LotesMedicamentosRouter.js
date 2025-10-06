@@ -5,7 +5,7 @@ const router = Router();
 
 router
    .route("/")
-   .get(lotesMedicamentos.getAllLotesMedicamentos)
+   .get(lotesMedicamentos.getAllLotesMedicamentos)   
    .post(lotesMedicamentos.createLoteMedicamento);
 
 router

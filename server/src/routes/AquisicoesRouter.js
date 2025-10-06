@@ -9,6 +9,10 @@ router
    .post(aquisicoesController.createAquisicao)
 
 router
+   .route("/medicamentos/:idMedicamento")
+   .get(aquisicoesController.getAllAquisicoesByMedicamentoId)
+
+router
    .route("/status/solicitado")
    .get(aquisicoesController.getAllAquisicoesSolicitadas)
 

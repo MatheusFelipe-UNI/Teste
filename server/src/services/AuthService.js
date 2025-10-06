@@ -8,7 +8,7 @@ function generateToken(id) {
 }
 
 
-async function loginService(userName, password) {
+async function loginService(userName, senha) {
    const existsUser = await findUserByName(userName.toLowerCase());
 
    if(!existsUser) {
@@ -20,7 +20,7 @@ async function loginService(userName, password) {
 
    const { id, usuario, nivel_acesso } = existsUser;
 
-   const isValidPassword = await bcrypt.compare(password, existsUser.senha);
+   const isValidPassword = await bcrypt.compare(senha, existsUser.senha);
 
    if(!isValidPassword) {
       throw new NotFoundError("Senha incorreta", {

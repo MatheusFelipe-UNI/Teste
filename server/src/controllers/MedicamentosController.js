@@ -12,6 +12,8 @@ const {
    getAllMedicamentosForSelectService,
    getAllMedicamentosByFilterService,
    createMedicamentoService,
+   updateMedicamentoService,
+   changeSituacaoMedicamentoService,
 } = require("../services/MedicamentosService.js")
 
 async function getAllMedicamentos(req, res) {
@@ -114,7 +116,7 @@ async function createMedicamento(req, res) {
       const {
          id,
          fk_id_laboratorio,
-         nome_medicamento,
+         nome,
          indicacao_uso,
          categoria,
          quantidade_minima,
@@ -125,7 +127,7 @@ async function createMedicamento(req, res) {
       if (
          !id ||
          !fk_id_laboratorio ||
-         !nome_medicamento ||
+         !nome ||
          !indicacao_uso ||
          !categoria ||
          (quantidade_minima === undefined || 
@@ -139,7 +141,18 @@ async function createMedicamento(req, res) {
             },
          });
       }
-      const createdMedicamento = await createMedicamentoService({id, fk_id_laboratorio, nome_medicamento, indicacao_uso, categoria, quantidade_minima,});
+      
+      const medicamentoData = {
+        id,
+        fk_id_laboratorio,
+        nome,
+        indicacao_uso,
+        categoria,
+        quantidade_minima,
+        img: file.filename 
+      };
+
+      const createdMedicamento = await createMedicamentoService(medicamentoData);
 
       if (!createdMedicamento) {
          throw new CannotCreateError("Erro ao cadastrar Medicamento", {
@@ -165,37 +178,22 @@ async function createMedicamento(req, res) {
 async function updateMedicamento(req, res) {
    try {
       const id = Number(req.params.id);
-      const {
-         fk_id_laboratorio,
-         nome_medicamento,
-         indicacao_uso,
-         categoria,
-         tipo_unidade,
-         quantidade_minima,
-      } = req.body;
-
       const file = req?.file;
-
-      if (
-         !id ||
-         (!fk_id_laboratorio &&
-         !nome_medicamento &&
-         !indicacao_uso &&
-         !categoria &&
-         !tipo_unidade &&
-         (quantidade_minima === undefined || 
-          quantidade_minima === null))
-      ) {
-         throw new FieldUndefinedError("Um ou mais campos não identificados", {
-            fields: {
-               id,
-               ...req.body,
-               file,
-            },
-         });
+      const updateData = { ...req.body };
+      if (file) {
+         updateData.img = file.filename;
+      }
+ 
+       if (updateData.nome_medicamento) {
+          updateData.nome = updateData.nome_medicamento;
+          delete updateData.nome_medicamento; 
       }
 
-      const [rowAffected] = "service aqui";
+      if (Object.keys(updateData).length == 0 && !file) {
+         throw new FieldUndefinedError("Nenhum campo para atualizar foi fornecido.");
+      }
+
+      const [rowAffected] = await updateMedicamentoService(id, updateData);
 
       if (rowAffected > 0) {
          return res.status(200).json({
@@ -214,24 +212,21 @@ async function updateMedicamento(req, res) {
 async function changeSituacaoMedicamento(req, res) {
    try {
       const id = Number(req.params.id);
-      const { situacao } = req.body;
+      const { situacao } = { ...req.body };
 
-      if (!id || !situacao) {
-         throw new FieldUndefinedError("Um ou mais campos não identificados", {
-            fields: {
-               id,
-               situacao,
-            },
-         });
+      if (!situacao) {
+         throw new FieldUndefinedError("É obrigatório preencher o campo 'situacao'.");
       }
 
-      const [rowAffected] = "service aqui";
+      const rowAffected = await changeSituacaoMedicamentoService(id, situacao);
 
       if (rowAffected > 0) {
          return res.status(200).json({
             status: "success",
             message: "Situação de medicamento alterada com sucesso!",
          });
+      } else {
+         throw new Error("Não foi possível alterar a situação do medicamento.");
       }
    } catch (error) {
       errorResponse(error, res);
@@ -246,9 +241,7 @@ module.exports = {
    getAllMedicamentosForSelect,
    getAllMedicamentosByFilter,
    createMedicamento,
-};
-/*  
- 
    updateMedicamento,
    changeSituacaoMedicamento,
-*/
+};
+  

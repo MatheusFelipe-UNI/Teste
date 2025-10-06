@@ -1,10 +1,16 @@
 const CannotCreateError = require("../classes/CannotCreateError.js");
 const FieldUndefinedError = require("../classes/FieldUndefinedError.js");
 const errorResponse = require("../helper/ErrorResponseHelper.js");
-
+const { getAllClientesEspeciaisService,
+   getAllClientesByMedicamentoService,
+   getClienteEspecialByIdService,
+   createClienteEspecialService,
+   updateClienteEspecialService,
+   deleteClienteEspecialService,
+} = require("../services/ClienteEspService.js");
 async function getAllClientesEspeciais(req, res) {
    try {
-      const allClientesEsp = "serviceaqui";
+      const allClientesEsp = await getAllClientesEspeciaisService();
       return res.status(200).json(allClientesEsp);
 
    } catch (error) {
@@ -14,9 +20,9 @@ async function getAllClientesEspeciais(req, res) {
 
 async function getAllClientesByMedicamento(req, res) {
    try {
-      const idMedicamento = Number(req.params.idMedicamento);
+      const idMedicamento = Number(req.params.idMedicamentos);
 
-      if(!idMedicamento) {
+      if (!idMedicamento) {
          throw new FieldUndefinedError("Campo idMedicamento não identificado", {
             fields: {
                idMedicamento
@@ -24,7 +30,7 @@ async function getAllClientesByMedicamento(req, res) {
          })
       }
 
-      const allClientesEsp = "serviceaqui";
+      const allClientesEsp = await getAllClientesByMedicamentoService(idMedicamento);
       return res.status(200).json(allClientesEsp);
 
    } catch (error) {
@@ -36,7 +42,7 @@ async function getClienteEspecialById(req, res) {
    try {
       const id = Number(req.params.id);
 
-      if(!id) {
+      if (!id) {
          throw new FieldUndefinedError("Campo id não identificado", {
             fields: {
                id
@@ -44,7 +50,7 @@ async function getClienteEspecialById(req, res) {
          })
       }
 
-      const clienteEsp = "serviceaqui";
+      const clienteEsp = await getClienteEspecialByIdService(id);
       return res.status(200).json(clienteEsp);
 
    } catch (error) {
@@ -54,21 +60,21 @@ async function getClienteEspecialById(req, res) {
 
 async function createClienteEspecial(req, res) {
    try {
-      const {nome_cliente, telefone, medicamentos} = req.body;
+      const { nome_cliente, telefone, medicamentos } = req.body;
 
-      if(!nome_cliente || !telefone || !medicamentos) {
+      if (!nome_cliente || !telefone || !medicamentos) {
          throw new FieldUndefinedError("Nenhum campo identificado", {
             fields: {
                nome_cliente,
                telefone,
                medicamentos
             }
-         });         
+         });
       }
 
-      const createdClienteEsp = "serviceaqui";
+      const createdClienteEsp = await createClienteEspecialService(nome_cliente, telefone, medicamentos);
 
-      if(!createdClienteEsp) {
+      if (!createdClienteEsp) {
          throw new CannotCreateError("Erro ao cadastrar cliente especial", {
             data: {
                nome_cliente,
@@ -92,9 +98,9 @@ async function createClienteEspecial(req, res) {
 async function updateClienteEspecial(req, res) {
    try {
       const id = Number(req.params.id);
-      const {nome_cliente, telefone, medicamentos} = req.body;
+      const { nome_cliente, telefone, medicamentos } = req.body;
 
-      if(!id || (!nome_cliente && !telefone && !medicamentos)) {
+      if (!id || (!nome_cliente && !telefone && !medicamentos)) {
          throw new FieldUndefinedError("Um ou mais campos não identificados", {
             fields: {
                id,
@@ -105,7 +111,7 @@ async function updateClienteEspecial(req, res) {
          });
       }
 
-      const [rowAffected] = "service aqui";
+      const [rowAffected] = await updateClienteEspecialService(id, nome_cliente, telefone, medicamentos);
 
       if (rowAffected > 0) {
          return res.status(200).json({
@@ -130,10 +136,10 @@ async function deleteClienteEspecial(req, res) {
             },
          });
       }
-      
-      const deletedCliente = "service aqui";
 
-      if(deletedCliente > 0) {
+      const deletedCliente = await deleteClienteEspecialService(id);
+
+      if (deletedCliente > 0) {
          return res.status(200).json({
             status: "success",
             message: "cliente especial removido com sucesso!"

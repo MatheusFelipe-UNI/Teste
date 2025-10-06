@@ -97,6 +97,7 @@ async function getAllInactiveMedicamentos() {
    return medicamento;
 }
 
+// busca os medicamentos conforme o SELECT
 async function getAllMedicamentosForSelect() {
    const medicamento = await Medicamentos.findAll({
       attributes: [
@@ -114,17 +115,34 @@ async function getAllMedicamentosForSelect() {
    return medicamento;
 }
 
+// busca os medicamentos conforme os FILTROS selecionados pelo usuário
 async function getAllMedicamentosByFilter (Parameters) {
      const allMedicamentos = await Medicamentos.findAll(Parameters)
    return allMedicamentos;
 }
 
+// Função para a criação de um NOVO MEDICAMENTO
 async function createMedicamento(medicamentoData) {
    const Newmedicamentos = await Medicamentos.create(medicamentoData);
    return Newmedicamentos
 }
 
+// Função para ATUALIZAR um MEDICAMENTO
+async function updateMedicamento(id, medicamentoData) {
+   const medicamento = await Medicamentos.update(medicamentoData, {
+      where: { id: id },
+   });
+   return medicamento;
+}
 
+// Função para ATUALIZAR a situação dos MEDICAMENTOS
+async function changeSituacaoMedicamento(id, newStatus) {
+   const [rowsAffected] = await Medicamentos.update(
+      { situacao: newStatus },
+      { where: { id: id } }
+   );
+   return rowsAffected; 
+}
 
 module.exports = {
    getAllMedicamentos,
@@ -134,4 +152,6 @@ module.exports = {
    getAllMedicamentosForSelect,
    getAllMedicamentosByFilter,
    createMedicamento,
+   updateMedicamento,
+   changeSituacaoMedicamento
 }

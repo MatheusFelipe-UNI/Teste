@@ -2,10 +2,18 @@ const CannotCreateError = require("../classes/CannotCreateError.js");
 const FieldUndefinedError = require("../classes/FieldUndefinedError.js");
 const NotFoundError = require("../classes/NotFoundError.js");
 const errorResponse = require("../helper/ErrorResponseHelper.js");
+//importação do service
+const {
+   getAllLaboratoriosService,
+   getLaboratorioByIdService,
+   getAllLaboratoriosForSelectService,
+   createLaboratorioService,
+   updateLaboratorioService
+} = require("../services/LaboratoriosService.js")
 
 async function getAllLaboratorios(req, res) {
    try {
-      const allLaboratorios = "service aqui";
+      const allLaboratorios = await getAllLaboratoriosService()
       return res.status(200).json(allLaboratorios);
 
    } catch (error) {
@@ -25,7 +33,7 @@ async function getLaboratorioById(req, res) {
          })
       };
 
-      const laboratorio = "service aqui";
+      const laboratorio = await getLaboratorioByIdService(id)
 
       if(!laboratorio) {
          throw new NotFoundError("Laboratório não encontrado", {
@@ -44,7 +52,7 @@ async function getLaboratorioById(req, res) {
 
 async function getAllLaboratoriosForSelect(req, res) {
    try {
-      const allLaboratorios = "service aqui";
+      const allLaboratorios = await getAllLaboratoriosForSelectService();
       return res.status(200).json(allLaboratorios);
    } catch (error) {
       errorResponse(error, res);
@@ -69,7 +77,7 @@ async function createLaboratorio(req, res) {
          });
       }
 
-      const createdLaboratorio = "service aqui";
+      const createdLaboratorio = await createLaboratorioService({nome_laboratorio, cnpj, endereco});
 
       if(!createdLaboratorio) {
          throw new CannotCreateError("Erro ao cadastrar Laboratório", {
@@ -98,7 +106,7 @@ async function updateLaboratorio(req, res) {
          endereco
       } = req.body;
 
-      if(!id || (nome_laboratorio && cnpj && endereco)) {
+      if(!id || (!nome_laboratorio && !cnpj && !endereco)) {
          throw new FieldUndefinedError("Nenhum campo identificado", {
             fields: {
                id,
@@ -109,7 +117,7 @@ async function updateLaboratorio(req, res) {
          })
       }
 
-      const [rowAffected] = "service aqui";
+      const [rowAffected] = await updateLaboratorioService(id, nome_laboratorio, cnpj, endereco)
 
       if(rowAffected > 0) {
          return res.status(200).json({
@@ -126,8 +134,14 @@ async function updateLaboratorio(req, res) {
 
 module.exports = {
    getAllLaboratorios,
-   getAllLaboratoriosForSelect,
    getLaboratorioById,
+   getAllLaboratoriosForSelect,
    createLaboratorio,
    updateLaboratorio
-}
+   }
+   /*
+  
+   
+
+  
+   */

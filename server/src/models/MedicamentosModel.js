@@ -36,6 +36,11 @@ module.exports = (sequelize, DataTypes) => {
          type: DataTypes.STRING,
          allowNull: false,
       },
+   situacao: {
+      type: DataTypes.ENUM("ATIVO", "INATIVO"),
+      allowNull: false,
+      defaultValue: "ATIVO",
+      }
    }, {
       freezeTableName: true,
       timestamps: true,

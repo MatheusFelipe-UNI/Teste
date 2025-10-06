@@ -25,20 +25,18 @@ router
 router
    .route("/laboratorios/:idLab")
    .get(medicamentosController.getAllMedicamentosByLaboratorioId)
-/*
+
 router
    .route("/:id/situacao")
    .patch(medicamentosController.changeSituacaoMedicamento)
-*/
+
 router
    .route("/:id")
    .get(medicamentosController.getMedicamentoById)
-/*
    .patch(
       uploadAndMoveFile.single("image"), 
       medicamentosController.updateMedicamento, 
       middlewareMulter
    )
-*/
 
 module.exports = router;

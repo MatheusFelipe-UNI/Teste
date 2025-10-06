@@ -2,10 +2,17 @@ const CannotCreateError = require("../classes/CannotCreateError.js");
 const FieldUndefinedError = require("../classes/FieldUndefinedError.js");
 const NotFoundError = require("../classes/NotFoundError.js");
 const errorResponse = require("../helper/ErrorResponseHelper.js");
+const { getAllLotesMedicamentosService,
+   getLotesMedicamentosByIdService,
+   getAllLotesMedicamentosByIdMedicamentoService,
+   getAllLotesMedicamentosByFilterService,
+   createdLoteMedicamentoService,
+   updateLoteMedicamentoService,
+} = require("../services/LotesMedicamentosService.js");
 
 async function getAllLotesMedicamentos(req, res) {
    try {
-      const allLotesMedica = "service aqui";
+      const allLotesMedica = await getAllLotesMedicamentosService();
       return res.status(200).json(allLotesMedica);
 
    } catch (error) {
@@ -15,7 +22,7 @@ async function getAllLotesMedicamentos(req, res) {
 
 async function getAllLotesMedicamentosByIdMedicamento(req, res) {
    try {
-      const idMedicamento = Number(req.params.idMedicamento);
+      const idMedicamento = Number(req.params.id);
 
       if (!idMedicamento) {
          throw new FieldUndefinedError("Campo idMedicamento não identificado", {
@@ -25,7 +32,7 @@ async function getAllLotesMedicamentosByIdMedicamento(req, res) {
          });
       }
 
-      const allLotesMedica = "service";
+      const allLotesMedica = await getAllLotesMedicamentosByIdMedicamentoService(idMedicamento);
       return res.status(200).json(allLotesMedica);
 
    } catch (error) {
@@ -35,9 +42,9 @@ async function getAllLotesMedicamentosByIdMedicamento(req, res) {
 
 async function getAllLotesMedicamentosByFilter(req, res) {
    try {
-      const { orderBy, filterOptions } = req.query;
+      const { orderBy, ...filterOptions } = req.query;
 
-      if (!orderBy && !filterOptions) {
+      if (!orderBy && Object.keys(filterOptions).length === 0) {
          throw new FieldUndefinedError("Um ou mais campos não identificados", {
             fields: {
                orderBy,
@@ -46,7 +53,7 @@ async function getAllLotesMedicamentosByFilter(req, res) {
          });
       }
 
-      const filteredLotesMedica = "service aqui";
+      const filteredLotesMedica = await getAllLotesMedicamentosByFilterService(req.query);
 
       return res.status(200).json(filteredLotesMedica);
 
@@ -67,9 +74,8 @@ async function getLoteMedicamentoById(req, res) {
          });
       }
 
-      const loteMedicamento = "service aqui";
-
-      if(!loteMedicamento) {
+      const loteMedicamento = await getLotesMedicamentosByIdService(id);
+      if (!loteMedicamento) {
          throw new NotFoundError("Lote de medicamento não encontrado", {
             fields: {
                id,
@@ -92,7 +98,7 @@ async function createLoteMedicamento(req, res) {
          data_validade
       } = req.body;
 
-      if(!fk_id_medicamento ||
+      if (!fk_id_medicamento ||
          (quantidade === undefined || quantidade === null) ||
          !data_validade
       ) {
@@ -105,9 +111,9 @@ async function createLoteMedicamento(req, res) {
          });
       }
 
-      const createdLoteMedicamento = "service aqui";
+      const createdLoteMedicamento = await createdLoteMedicamentoService({fk_id_medicamento, quantidade, data_validade});
 
-      if(!createdLoteMedicamento) {
+      if (!createdLoteMedicamento) {
          throw new CannotCreateError("Erro ao cadastrar Lote de Medicamento", {
             loteData: req.body,
             inCreated: createdLoteMedicamento
@@ -133,8 +139,8 @@ async function updateLoteMedicamento(req, res) {
          quantidade,
          data_validade
       } = req.body;
-      
-      if(!id || (
+
+      if (!id || (
          !fk_id_medicamento &&
          (quantidade === undefined || quantidade === null) &&
          !data_validade
@@ -145,12 +151,11 @@ async function updateLoteMedicamento(req, res) {
                quantidade,
                data_validade
             }
-         });         
+         });
       }
 
-      const [rowAffected] = "service aqui";
-
-      if(rowAffected > 0) {
+      const [rowAffected] = await updateLoteMedicamentoService(id, fk_id_medicamento, quantidade, data_validade);
+      if (rowAffected > 0) {
          return res.status(200).json({
             status: "success",
             message: "Informações de Lote de Medicamento alterado com sucesso!"
@@ -169,5 +174,4 @@ module.exports = {
    getLoteMedicamentoById,
    createLoteMedicamento,
    updateLoteMedicamento
-
 }
