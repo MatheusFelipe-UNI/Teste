@@ -65,11 +65,8 @@ async function getAllMedicamentosByFilterService(QueryParams = {}) {
    const Orderselect = [];
    if (orderBy) {
       const [field, direction] = orderBy.split(",")
-      if (field && direction) {
-         const upperDirection = direction.toUpperCase();
-         if(upperDirection === "ASC" || upperDirection == "DESC") {
-            Orderselect.push([field, upperDirection]);
-         }
+      if (field && (direction == "ASC" || direction === "DESC")) {
+         Orderselect.push([field, direction]);
       }
    } else {
       Orderselect.push(["nome", "ASC"]);
@@ -100,55 +97,49 @@ async function getAllMedicamentosByFilterService(QueryParams = {}) {
          as: "laboratorio",
          attributes: ["nome_laboratorio"],
       },
+      order: [],
    };
 
    const allMedicamentos = await getAllMedicamentosByFilter(queryOptions);
    return allMedicamentos;
 }
 
-async function createMedicamentoService(medicamentoData) {
-   const { id } = medicamentoData
+async function createMedicamentoService(id, fk_id_laboratorio, nome, indicacao_uso, categoria, tipo_unidade, quantidade_minima, quantidade_total, img, situacao) {
 
    const idExists = await getMedicamentoById(id);
    if(idExists) {
       throw new ExistsDataError("Existe um medicamento com este ID.","ID_EXISTS", {id})
    }
 
-   const Newmedicamento = await createMedicamento (medicamentoData);
+   const Newmedicamento = await createMedicamento (id, fk_id_laboratorio, nome, indicacao_uso, categoria, tipo_unidade, quantidade_minima, quantidade_total, img, situacao);
    return Newmedicamento;
 }
 
-async function updateMedicamentoService(id, medicamentoData) {
+async function updateMedicamentoService(id, fk_id_laboratorio, nome, indicacao_uso, categoria, tipo_unidade, quantidade_minima, img, situacao, quantidade_total) {
    const medicamento = await getMedicamentoById(id);
    if(!medicamento) {
       throw new NotFoundError("O medicamento não existe")
    }
-   const updatedMedicamento = await updateMedicamento(id, medicamentoData);
+   const updatedMedicamento = await updateMedicamento(id, fk_id_laboratorio, nome, indicacao_uso, categoria, tipo_unidade, quantidade_minima, img, situacao, quantidade_total);
    return updatedMedicamento;
 }
 
-async function changeSituacaoMedicamentoService(id, newStatus) {
+async function changeSituacaoMedicamentoService(id, situacao) {
    const medicamento = await getMedicamentoById(id);
    if(!medicamento) {
       throw new NotFoundError("O medicamento não existe")
    }
 
-       const formattedStatus = newStatus.trim().toUpperCase();
-    if (formattedStatus !== 'ATIVO' && formattedStatus !== 'INATIVO') {
-        throw new ExistsDataError("Status inválido.", "STATUS_INVALIDO", {
-            status_enviado: newStatus,
-            status_permitidos: ["ATIVO", "INATIVO"],
-        });
-    }
-    
-    const situacaoAtual = (medicamento.situacao || 'ATIVO').trim().toUpperCase();
-
-
-    if (situacaoAtual === formattedStatus) {
-        throw new ExistsDataError(`O medicamento já está ${formattedStatus}.`);
-    }
-    const newMedStatus = await changeSituacaoMedicamento(id, formattedStatus);
-    return newMedStatus
+   const formattedStatus = situacao.trim().toUpperCase();
+   if (formattedStatus != 'ATIVO' && formattedStatus != 'INATIVO') {
+      throw new ExistsDataError ("Use: ATIVO ou INATIVO");
+   }
+   const situacaoAtual = medicamento.situacao ? medicamento.situacao.trim().toUpperCase() : 'ATIVO';
+      if (situacaoAtual == formattedStatus) {
+         throw new ExistsDataError (`O medicamento já está ${formattedStatus}`);
+      }
+    const rowAffected = await changeSituacaoMedicamento(id, formattedStatus);
+      return rowAffected;
 } 
 
 module.exports = {
@@ -161,4 +152,4 @@ module.exports = {
    createMedicamentoService,
    updateMedicamentoService,
    changeSituacaoMedicamentoService,
-};
+};   

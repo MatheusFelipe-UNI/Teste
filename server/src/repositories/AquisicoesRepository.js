@@ -1,4 +1,4 @@
-const { Association, where } = require("sequelize");
+    const { Association, where } = require("sequelize");
 const { Aquisicoes, Itens_aquisicoes, Medicamentos, Laboratorios, Users, sequelize } = require("../models/index.js");
 
 // Procura todas as Aquisições

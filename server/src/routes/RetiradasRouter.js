@@ -11,7 +11,7 @@ router
 router
    .route("/filter")
    .get(retiradasController.getAllRetiradasByFilter)
-
+   
 router
    .route("/:id")
    .get(retiradasController.getRetiradaById)

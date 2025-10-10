@@ -3,7 +3,6 @@ const FieldUndefinedError = require("../classes/FieldUndefinedError.js");
 const NotFoundError = require("../classes/NotFoundError.js");
 const deleteFile = require("../helper/deleteFileHelper.js");
 const errorResponse = require("../helper/ErrorResponseHelper.js");
-//importação do service
 const {
    getAllMedicamentosService,
    getAllMedicamentosByLaboratorioIdService,
@@ -67,7 +66,6 @@ async function getAllMedicamentosByFilter(req, res) {
       }
 
       const filteredMedicamentos = await getAllMedicamentosByFilterService(req.query);
-
       return res.status(200).json(filteredMedicamentos);
    } catch (error) {
       errorResponse(error, res);
@@ -116,10 +114,13 @@ async function createMedicamento(req, res) {
       const {
          id,
          fk_id_laboratorio,
-         nome,
+         nome_medicamento,
          indicacao_uso,
          categoria,
          quantidade_minima,
+         quantidade_total = 0,
+         tipo_unidade,
+         situacao = "ATIVO"
       } = req.body;
 
       const file = req.file;
@@ -127,9 +128,10 @@ async function createMedicamento(req, res) {
       if (
          !id ||
          !fk_id_laboratorio ||
-         !nome ||
+         !nome_medicamento ||
          !indicacao_uso ||
          !categoria ||
+         !tipo_unidade ||
          (quantidade_minima === undefined || 
           quantidade_minima === null) ||
          !file
@@ -141,18 +143,19 @@ async function createMedicamento(req, res) {
             },
          });
       }
-      
-      const medicamentoData = {
-        id,
-        fk_id_laboratorio,
-        nome,
-        indicacao_uso,
-        categoria,
-        quantidade_minima,
-        img: file.filename 
-      };
 
-      const createdMedicamento = await createMedicamentoService(medicamentoData);
+      const createdMedicamento = await createMedicamentoService(
+         Number(id),
+         Number(fk_id_laboratorio),
+         nome_medicamento,
+         indicacao_uso,
+         categoria,
+         tipo_unidade,
+         Number(quantidade_minima),
+         Number(quantidade_total),
+         file.filename,
+         situacao
+   );
 
       if (!createdMedicamento) {
          throw new CannotCreateError("Erro ao cadastrar Medicamento", {
@@ -178,22 +181,54 @@ async function createMedicamento(req, res) {
 async function updateMedicamento(req, res) {
    try {
       const id = Number(req.params.id);
+      const {
+         fk_id_laboratorio,
+         nome_medicamento,
+         indicacao_uso,
+         categoria,
+         tipo_unidade,
+         quantidade_minima,
+         quantidade_total,
+         situacao
+      } = req.body;
+
       const file = req?.file;
-      const updateData = { ...req.body };
-      if (file) {
-         updateData.img = file.filename;
-      }
- 
-       if (updateData.nome_medicamento) {
-          updateData.nome = updateData.nome_medicamento;
-          delete updateData.nome_medicamento; 
+
+      if (
+         !id ||
+         (!fk_id_laboratorio &&
+         !nome_medicamento &&
+         !indicacao_uso &&
+         !categoria &&
+         !tipo_unidade &&
+         (quantidade_minima === undefined || 
+          quantidade_minima === null))
+      ) {
+         throw new FieldUndefinedError("Um ou mais campos não identificados", {
+            fields: {
+               id,
+               ...req.body,
+               file,
+            },
+         });
       }
 
-      if (Object.keys(updateData).length == 0 && !file) {
-         throw new FieldUndefinedError("Nenhum campo para atualizar foi fornecido.");
-      }
+      const imgFilename = file ? file.filename : undefined;
+      const fk_id_laboratorio_num = fk_id_laboratorio ? Number(fk_id_laboratorio) : undefined;
+      const quantidade_minima_num = quantidade_minima ? Number(quantidade_minima) : undefined;
+      const quantidade_total_num = quantidade_total ? Number(quantidade_total) : undefined;
 
-      const [rowAffected] = await updateMedicamentoService(id, updateData);
+
+      const rowAffected = await updateMedicamentoService(id, 
+         fk_id_laboratorio_num, 
+         nome_medicamento, 
+         indicacao_uso, 
+         categoria, 
+         tipo_unidade, 
+         quantidade_minima_num,
+         quantidade_total_num,
+         imgFilename,
+         situacao);
 
       if (rowAffected > 0) {
          return res.status(200).json({
@@ -212,21 +247,22 @@ async function updateMedicamento(req, res) {
 async function changeSituacaoMedicamento(req, res) {
    try {
       const id = Number(req.params.id);
-      const { situacao } = { ...req.body };
+      const { situacao } = req.body;
 
-      if (!situacao) {
-         throw new FieldUndefinedError("É obrigatório preencher o campo 'situacao'.");
+      if (!id || !situacao) {
+         throw new FieldUndefinedError("Um ou mais campos não identificados", {
+            fields: {
+               id,
+               situacao,
+            },
+         });
       }
-
       const rowAffected = await changeSituacaoMedicamentoService(id, situacao);
-
       if (rowAffected > 0) {
          return res.status(200).json({
             status: "success",
             message: "Situação de medicamento alterada com sucesso!",
          });
-      } else {
-         throw new Error("Não foi possível alterar a situação do medicamento.");
       }
    } catch (error) {
       errorResponse(error, res);
@@ -235,13 +271,12 @@ async function changeSituacaoMedicamento(req, res) {
 
 module.exports = {
    getAllMedicamentos,
-   getAllMedicamentosByLaboratorioId,
-   getMedicamentoById,
    getAllInactiveMedicamentos,
-   getAllMedicamentosForSelect,
+   getAllMedicamentosByLaboratorioId,
    getAllMedicamentosByFilter,
+   getMedicamentoById,
+   getAllMedicamentosForSelect,
    createMedicamento,
    updateMedicamento,
    changeSituacaoMedicamento,
 };
-  

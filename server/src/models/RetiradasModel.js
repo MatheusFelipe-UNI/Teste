@@ -10,8 +10,8 @@ module.exports = (sequelize, DataTypes) => {
    Retiradas.associate = (models) => {
       Retiradas.hasMany(models.Itens_retiradas, {
          constraint: true,
-         foreignKey: "fk_id_aquisicao",
-         as: "item_aquisicao"         
+         foreignKey: "fk_id_retirada",
+         as: "itens_retirada"         
       });
 
       Retiradas.belongsTo(models.Users, {
